@@ -1,12 +1,22 @@
 # Changelog
 
-All notable changes to claudesidian will be documented in this file.
+All notable changes to opesidian will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+### Changed
+
+- Migrated project from claudesidian (Claude Code) to opesidian (opencode CLI)
+- Created `.opencode/commands/` with opencode-formatted commands
+- Moved skills from `.claude/skills/` to `.agents/skills/` (agents standard)
+- Renamed `CLAUDE-BOOTSTRAP.md` to `AGENTS-BOOTSTRAP.md`
+- Updated package.json, README, install.sh for opesidian branding
+- Dynamic repo URL detection in upgrade command (reads from git remote)
+- Kept `.claude/commands/` intact for Claude Code backward compatibility
 
 ## [0.14.2] - 2026-01-13
 
@@ -473,7 +483,10 @@ and this project adheres to
 - API keys stored in environment variables
 - .mcp.json gitignored for security
 
-[Unreleased]: https://github.com/heyitsnoah/claudesidian/compare/v0.14.2...HEAD
+[Unreleased]: https://github.com/trevorrecker/opesidian/compare/v0.14.2...HEAD
+
+<!-- Pre-fork history (claudesidian) -->
+
 [0.14.2]: https://github.com/heyitsnoah/claudesidian/compare/v0.14.1...v0.14.2
 [0.14.1]: https://github.com/heyitsnoah/claudesidian/compare/v0.14.0...v0.14.1
 [0.14.0]: https://github.com/heyitsnoah/claudesidian/compare/v0.13.1...v0.14.0

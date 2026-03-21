@@ -1,12 +1,12 @@
-# Contributing to Claudesidian
+# Contributing to Opesidian
 
-Thank you for your interest in contributing to claudesidian! This document
+Thank you for your interest in contributing to opesidian! This document
 provides guidelines for contributing to the project.
 
 ## Development Setup
 
 1. Fork the repository
-2. Clone your fork: `git clone https://github.com/yourusername/claudesidian.git`
+2. Clone your fork: `git clone https://github.com/yourusername/opesidian.git`
 3. Install dependencies: `pnpm install`
 4. Create a feature branch: `git checkout -b feature/your-feature-name`
 

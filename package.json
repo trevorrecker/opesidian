@@ -1,11 +1,11 @@
 {
-  "name": "claudesidian",
-  "version": "0.14.2",
-  "description": "Claude Code + Obsidian Starter Kit - AI-powered second brain",
+  "name": "opesidian",
+  "version": "0.15.0",
+  "description": "opencode + Obsidian Starter Kit - AI-powered second brain",
   "type": "module",
   "scripts": {
     "setup": "pnpm install && echo '✅ Setup complete! Configure GEMINI_API_KEY for vision features'",
-    "test-gemini": "GEMINI_API_KEY=${GEMINI_API_KEY} node .claude/mcp-servers/gemini-vision.mjs",
+    "test-gemini": "GEMINI_API_KEY=${GEMINI_API_KEY} node .opencode/mcp-servers/gemini-vision.mjs",
     "lint": "eslint --config .config/eslint.config.js . --fix && prettier --config .config/.prettierrc.js --write .",
     "lint:check": "eslint --config .config/eslint.config.js . && prettier --config .config/.prettierrc.js --check .",
     "format": "prettier --config .config/.prettierrc.js --write .",
@@ -21,18 +21,17 @@
     "attachments:create-organized": "mkdir -p 05_Attachments/Organized",
     "transcript:extract": ".scripts/transcript-extract.sh",
     "vault:stats": ".scripts/vault-stats.sh",
-    "check-updates": "REMOTE=$(curl -s https://raw.githubusercontent.com/heyitsnoah/claudesidian/main/package.json | grep version | head -1 | sed 's/.*: \"\\(.*\\)\".*/\\1/') && LOCAL=$(grep version package.json | head -1 | sed 's/.*: \"\\(.*\\)\".*/\\1/') && if [ \"$LOCAL\" != \"$REMOTE\" ]; then echo -e \"📦 Update available! Latest: $REMOTE (you have: $LOCAL)\\n\\n⬇\\n/upgrade\\n⬆\\n\\n## What will this do\\n\\n✅ Update to the latest version of Claudesidian\\n✅ Get new features and improvements\\n✅ Preserve your vault content and settings\\n\\n\"; fi"
+    "check-updates": "REPO_URL=$(git remote get-url origin 2>/dev/null || echo 'https://github.com/trevorrecker/opesidian.git') && REPO=$(echo \"$REPO_URL\" | sed -E 's|.*github\\.com[:/](.+)(\\.git)?$|\\1|' | sed 's/\\.git$//') && REMOTE=$(curl -s \"https://raw.githubusercontent.com/$REPO/main/package.json\" | grep version | head -1 | sed 's/.*: \"\\(.*\\)\".*/\\1/') && LOCAL=$(grep version package.json | head -1 | sed 's/.*: \"\\(.*\\)\".*/\\1/') && if [ \"$LOCAL\" != \"$REMOTE\" ]; then echo -e \"📦 Update available! Latest: $REMOTE (you have: $LOCAL)\\n\\n⬇\\n/upgrade\\n⬆\\n\\n## What will this do\\n\\n✅ Update to the latest version of Opesidian\\n✅ Get new features and improvements\\n✅ Preserve your vault content and settings\\n\\n\"; fi"
   },
   "keywords": [
     "obsidian",
-    "claude",
-    "claude-code",
+    "opencode",
     "ai",
     "second-brain",
     "knowledge-management",
     "para-method"
   ],
-  "author": "",
+  "author": "Trevor Recker",
   "license": "MIT",
   "dependencies": {
     "@google/generative-ai": "^0.21.0",

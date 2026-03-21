@@ -8,8 +8,9 @@
 *secret*
 firecrawl_config.sh
 
-# Claude files
+# System prompt files
 CLAUDE.md
+AGENTS.md
 .claude/settings.local.json
 
 # MCP config
@@ -29,6 +30,8 @@ pnpm-lock.yaml
 # Temporary directories
 .tmp/
 .worktrees/
+.backup/
+.migration/
 
 # Never commit real API keys
 *_API_KEY

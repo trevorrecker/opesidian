@@ -1,11 +1,11 @@
-# Claudesidian: Claude Code + Obsidian Starter Kit
+# Opesidian: opencode + Obsidian Starter Kit
 
-Turn your Obsidian vault into an AI-powered second brain using Claude Code.
+Turn your Obsidian vault into an AI-powered second brain using opencode.
 
 ## What is this?
 
 This is a pre-configured Obsidian vault structure designed to work seamlessly
-with Claude Code, enabling you to:
+with opencode, enabling you to:
 
 - Use AI as a thinking partner, not just a writing assistant
 - Organize knowledge using the PARA method
@@ -20,40 +20,75 @@ with Claude Code, enabling you to:
 
 ```bash
 # Clone with your preferred folder name (replace 'my-vault' with any name you like)
-git clone https://github.com/heyitsnoah/claudesidian.git my-vault
+git clone https://github.com/trevorrecker/opesidian.git my-vault
 cd my-vault
 
 # Examples:
-# git clone https://github.com/heyitsnoah/claudesidian.git obsidian-notes
-# git clone https://github.com/heyitsnoah/claudesidian.git knowledge-base
-# git clone https://github.com/heyitsnoah/claudesidian.git second-brain
+# git clone https://github.com/trevorrecker/opesidian.git obsidian-notes
+# git clone https://github.com/trevorrecker/opesidian.git knowledge-base
+# git clone https://github.com/trevorrecker/opesidian.git second-brain
 ```
 
 **Option B: Download ZIP (no Git required)**
 
 1. Click "Code" → "Download ZIP" on GitHub
 2. Extract to your desired location
-3. Open the folder in Claude Code
+3. Open the folder in opencode
+
+**Option C: Migrate from an existing Claudesidian vault**
+
+If you have an existing [claudesidian](https://github.com/heyitsnoah/claudesidian)
+installation and want to switch to opesidian:
+
+```bash
+# 1. Clone opesidian to a new directory
+git clone https://github.com/trevorrecker/opesidian.git my-vault
+cd my-vault
+
+# 2. Run setup with the path to your claudesidian vault
+./install.sh /path/to/your/claudesidian-vault
+
+# 3. Start opencode and run the setup wizard
+opencode
+# then in opencode:
+/init-bootstrap
+```
+
+The install script stages your content and configuration for migration. The setup
+wizard then walks you through adapting everything for opencode — migrating custom
+commands, skills, settings, and your personalized configuration.
+
+What gets migrated:
+
+- Your vault content (all `NN_*` directories and any other custom folders)
+- `.obsidian/` settings, plugins, and themes
+- `.claude/` configuration (settings, MCP servers, local permissions)
+- Custom commands and skills you created
+- `.mcp.json` configuration
+- Your `CLAUDE.md` (used as a starting point for `AGENTS.md`)
+
+Your original claudesidian directory is never modified.
 
 ### 2. Run the Setup Wizard
 
 ```bash
-# Start Claude Code in the directory
-claude
+# Start opencode in the directory
+opencode
 
-# Run the interactive setup wizard (in Claude Code)
+# Run the interactive setup wizard (in opencode)
 /init-bootstrap
 ```
 
 This will:
 
 - Install dependencies automatically
-- Disconnect from the original claudesidian repository
+- Disconnect from the original opesidian repository
+- **Detect and migrate claudesidian content** (if staged by `install.sh`)
 - **Intelligently analyze** your existing vault structure and patterns
 - **Import your existing Obsidian vault** safely to OLD_VAULT/ (if you have one)
 - **Research your public work** for personalized context (with your permission)
 - Ask you about your workflow preferences
-- Create a personalized CLAUDE.md configuration
+- Create a personalized AGENTS.md configuration
 - Set up your folder structure
 - Optionally configure Gemini Vision for image/video analysis
 - Optionally configure Firecrawl for web research
@@ -62,12 +97,12 @@ This will:
 ### 3. Open in Obsidian (Optional but Recommended)
 
 - Download [Obsidian](https://obsidian.md)
-- Open vault from the claudesidian folder
-- This gives you a visual interface alongside Claude Code
+- Open vault from the opesidian folder
+- This gives you a visual interface alongside opencode
 
 ### 4. Your First Session
 
-Tell Claude Code:
+Tell opencode:
 
 ```
 I'm starting a new project about [topic].
@@ -76,7 +111,7 @@ Please search my vault for any relevant existing notes,
 then help me explore this topic by asking questions.
 ```
 
-Or use one of the pre-configured commands (in Claude Code):
+Or use one of the pre-configured commands (in opencode):
 
 ```
 /thinking-partner   # For collaborative exploration
@@ -87,7 +122,7 @@ Or use one of the pre-configured commands (in Claude Code):
 ## Folder Structure
 
 ```
-claudesidian/
+opesidian/
 ├── 00_Inbox/           # Temporary capture point for new ideas
 ├── 01_Projects/        # Active, time-bound initiatives
 ├── 02_Areas/           # Ongoing responsibilities
@@ -106,7 +141,7 @@ claudesidian/
 
 **Thinking Mode** (Research & Exploration):
 
-- Claude asks questions to understand your goals
+- Your agent asks questions to understand your goals
 - Searches existing notes for relevant content
 - Helps make connections between ideas
 - Maintains a log of insights and progress
@@ -139,7 +174,7 @@ claudesidian/
 - Completed projects with their outputs
 - Old notes no longer relevant
 
-## Claude Code Commands
+## opencode Commands
 
 Pre-configured AI assistants ready to use:
 
@@ -150,16 +185,16 @@ Pre-configured AI assistants ready to use:
 - `weekly-synthesis` - Find patterns in your week
 - `create-command` - Build new custom commands
 - `de-ai-ify` - Remove AI writing patterns from text
-- `upgrade` - Update to the latest claudesidian version
+- `upgrade` - Update to the latest opesidian version
 - `init-bootstrap` - Re-run the setup wizard
-- `install-claudesidian-command` - Install shell command to launch vault from
+- `install-opesidian-command` - Install shell command to launch vault from
   anywhere
 
-Run with: `/[command-name]` in Claude Code
+Run with: `/[command-name]` in opencode
 
 ### Staying Updated with `/upgrade`
 
-Claudesidian automatically checks for updates when you start Claude Code and
+Opesidian automatically checks for updates when you start opencode and
 will remind you to run `/upgrade` when new features are available.
 
 The upgrade command intelligently merges new features while preserving your
@@ -195,17 +230,17 @@ customizations:
 
 ## Vision & Document Analysis (Optional)
 
-With [Google Gemini](https://ai.google.dev/) MCP configured, Claude Code can
+With [Google Gemini](https://ai.google.dev/) MCP configured, opencode can
 process your attachments directly without having to describe them. This means:
 
-- **Direct image analysis**: Claude sees the actual image, not your description
+- **Direct image analysis**: Your agent sees the actual image, not your description
 - **PDF text extraction**: Full document text without copy-pasting
 - **Bulk processing**: Analyze multiple screenshots or documents at once
 - **Smart organization**: Auto-generate filenames based on image content
 - **Comparison tasks**: Compare before/after screenshots, designs, etc.
 
 **Why this matters**: Instead of describing "a screenshot showing an error
-message", Claude Code directly sees and reads the error. Perfect for debugging
+message", opencode directly sees and reads the error. Perfect for debugging
 UI issues, analyzing charts, or processing scanned documents.
 
 **Getting a Gemini API key:**
@@ -225,13 +260,13 @@ fetch and save full web content directly to your vault. This means:
 
 - **Full text capture**: Scripts pipe complete article text to files, not
   summaries
-- **Context preservation**: Claude doesn't need to hold web content in memory
+- **Context preservation**: Your agent doesn't need to hold web content in memory
 - **Batch processing**: Save multiple articles at once with `firecrawl-batch.sh`
 - **Clean markdown**: Web pages converted to readable, searchable markdown
 - **Permanent archive**: Your research stays in your vault forever
 
-**Why this matters**: Instead of Claude reading a webpage and summarizing it
-(losing detail), the scripts save the FULL text. Claude can then search and
+**Why this matters**: Instead of your agent reading a webpage and summarizing it
+(losing detail), the scripts save the FULL text. Your agent can then search and
 analyze thousands of saved articles without hitting context limits. Perfect for
 research projects, documentation archives, or building a knowledge base.
 
@@ -270,11 +305,11 @@ Run these with `pnpm`:
 Install a shell command to launch your vault from any directory:
 
 ```bash
-# In Claude Code, run:
-/install-claudesidian-command
+# In opencode, run:
+/install-opesidian-command
 ```
 
-This creates a `claudesidian` alias that:
+This creates an `opesidian` alias that:
 
 - Changes to your vault directory automatically
 - Tries to resume your existing session (if one exists)
@@ -285,7 +320,7 @@ This creates a `claudesidian` alias that:
 
 ```bash
 # From anywhere in your terminal:
-claudesidian
+opesidian
 
 # It will automatically resume your last session or start a new one
 ```
@@ -317,11 +352,11 @@ Best practices:
 2. Install Tailscale for secure VPN access
 3. Clone your vault to the server
 4. Use Termius or similar SSH client on mobile
-5. Run Claude Code remotely
+5. Run opencode remotely
 
 ### Custom Commands
 
-Create specialized commands by saving instructions in `.claude/commands/`:
+Create specialized commands by saving instructions in `.opencode/commands/`:
 
 **Research Assistant** (`06_Metadata/Agents/research-assistant.md`):
 
@@ -346,9 +381,9 @@ You are a research assistant.
 
 ## Troubleshooting
 
-### Claude Code can't find my notes
+### opencode can't find my notes
 
-- Make sure you're running Claude Code from the vault root directory
+- Make sure you're running opencode from the vault root directory
 - Check file permissions
 - Verify markdown files have `.md` extension
 
@@ -391,13 +426,13 @@ better with everyone's input.
 
 ### What We're Looking For
 
-- **New commands**: Useful Claude Code commands for common workflows
+- **New commands**: Useful opencode commands for common workflows
 - **New agents**: Specialized agents for specific tasks
 - **Documentation improvements**: Better explanations, examples, or guides
 - **Bug fixes**: Found something broken? Fix it!
 - **Workflow templates**: Share your productive workflows
 - **Helper scripts**: Automation tools that make vault management easier
-- **Integration guides**: Connect Claudesidian with other tools
+- **Integration guides**: Connect Opesidian with other tools
 - **Core updates**: Improvements to the upgrade system, setup wizard, or other
   core features
 
@@ -436,13 +471,17 @@ makes this better for everyone!
 
 - [Obsidian Documentation](https://help.obsidian.md)
 - [PARA Method](https://fortelabs.com/blog/para/)
-- [Claude Code Documentation](https://claude.ai/docs)
+- [opencode Documentation](https://opencode.ai)
+
+## Attribution
+
+Opesidian is a fork of [claudesidian](https://github.com/heyitsnoah/claudesidian) by Noah Brier, adapted to work with [opencode](https://opencode.ai) instead of Claude Code.
 
 ## Inspiration
 
 This starter kit was inspired by the workflows discussed in:
 
-- [How to Use Claude Code as a Second Brain](https://every.to/podcast/how-to-use-claude-code-as-a-thinking-partner) -
+- [How to Use Claude Code as a Thinking Partner](https://every.to/podcast/how-to-use-claude-code-as-a-thinking-partner) -
   Noah Brier's interview with Dan Shipper
 - Built by the team at [Alephic](https://alephic.com) - an AI-first strategy and
   software partner that helps organizations solve complex challenges through

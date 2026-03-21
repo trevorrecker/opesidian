@@ -14,8 +14,8 @@ PROMPT=$(echo "$INPUT" | sed -nE 's/.*"prompt"[[:space:]]*:[[:space:]]*"(([^\\"]
 
 # Match: skill, skills (case-insensitive, word boundary) in prompt only
 if echo "$PROMPT" | grep -iqE '\bskills?\b'; then
-  # Get skill names from .claude/skills/ directory
-  SKILLS_DIR="${CLAUDE_PROJECT_DIR:-.}/.claude/skills"
+  # Get skill names from .agents/skills/ directory
+  SKILLS_DIR="${CLAUDE_PROJECT_DIR:-.}/.agents/skills"
 
   if [ -d "$SKILLS_DIR" ]; then
     # Build list of skills with descriptions
