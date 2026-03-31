@@ -4,10 +4,18 @@ description: Interactive setup wizard that helps new users create a personalized
 
 # Initialize Bootstrap Configuration
 
-This command helps you create a personalized AGENTS.md configuration file by
-asking questions about your Obsidian workflow and preferences.
+## How this command works
 
-## Task
+You are an interactive setup wizard. The steps below describe a conversation
+you guide the user through — each numbered step is a phase where you explain
+what's happening, ask questions, wait for real user input, and take action
+based on their answers.
+
+Do not rush through steps or auto-answer on the user's behalf. Present each
+step clearly, explain why you're asking, and confirm before making changes.
+The user should feel in control of the process at all times.
+
+## Goal
 
 Read the AGENTS-BOOTSTRAP.md template and interactively gather information about
 the user's:
@@ -40,84 +48,127 @@ Then generate a customized AGENTS.md file tailored to their needs.
      method
 
 2. **Claudesidian Migration**
-   - Check if `.migration/` directory exists in the vault root (created by
-     `install.sh` when the user provides a claudesidian vault path)
-   - If not found, also check if the user mentions claudesidian or migration —
-     offer to run the staging if they provide a path (use bash to copy content,
-     .obsidian, .claude, .mcp.json, CLAUDE.md, and other directories from the
-     source into `.migration/` following the same structure as install.sh)
-   - If `.migration/` found, tell user:
-     "I found staged claudesidian content. Let me walk you through the migration."
+
+   Check if `.migration/` directory exists in the vault root (created by
+   `install.sh` when the user provides a claudesidian vault path). If not
+   found, ask the user: "Are you migrating from an existing claudesidian
+   installation? If so, provide the path and I'll stage the files for
+   migration." If they provide a path, run the staging (copy everything from
+   the source into `.migration/` following the same structure as install.sh).
+
+   If `.migration/` is found, explain to the user:
+
+   "I found staged content from your claudesidian vault. I'll walk you
+   through migrating everything to opesidian. Your original claudesidian
+   directory has not been modified — everything here is a copy.
+
+   I'll go through each category of content and ask how you'd like to
+   handle it. Your notes, plugins, and Obsidian settings will be brought
+   over. For commands and skills, I'll adapt what I can for opencode and
+   flag anything that needs your review."
+
+   **Important principles for this step:**
+   - The user's original claudesidian directory is NEVER modified
+   - When in doubt about any file or directory, copy it to `.migration/`
+     for the user to review rather than discarding or auto-placing it
+   - Always explain what you're doing and why before taking action
+   - Ask the user before overwriting anything that already exists in
+     opesidian
+   - The `.migration/` directory persists until the user is satisfied
+     everything has been properly placed — do NOT delete it automatically
 
    **Sub-steps (process each category with the user):**
 
-   a. **Content directories** (`.migration/content/`)
-      - List all directories found with file counts
-      - For standard PARA dirs matching existing vault folders (00_Inbox through
-        06_Metadata): merge into corresponding vault dirs using
-        `cp -rn .migration/content/NN_Name/* ./NN_Name/` (no-clobber)
-      - For non-standard dirs (custom-numbered or custom-named):
-        - Ask user: "Found directory [name] with N files. Move to vault root?
-          (yes/rename/skip)"
-      - Show summary of what was moved
+   a. **Notes and content directories** (`.migration/content/`)
+      - List ALL directories found with file counts and sizes
+      - Show the user a clear overview: "Here's what was in your vault:"
+      - For each directory:
+        - If it matches an existing opesidian PARA folder (e.g., 00_Inbox,
+          01_Projects), ask: "Merge [name] (N files) into your opesidian
+          [name] folder? (yes/skip)"
+        - If it's a custom directory the user created, ask: "Found [name]
+          with N files. Would you like to: (1) place it at the vault root,
+          (2) rename it, (3) keep it in .migration/ for now?"
+      - Use `cp -rn` (no-clobber) so existing opesidian files aren't
+        overwritten
+      - Show summary of what was moved and what remains in `.migration/`
 
    b. **Obsidian configuration** (`.migration/obsidian/`)
-      - Copy to `.obsidian/`: `cp -r .migration/obsidian .obsidian`
-      - Tell user their Obsidian settings, plugins, and themes are now in place
+      - Tell user: "Your Obsidian settings, plugins, and themes are ready
+        to copy over."
+      - If `.obsidian/` already exists in opesidian (stock config), ask:
+        "Replace with your claudesidian Obsidian settings? (yes/no)"
+      - Copy to `.obsidian/` if confirmed
+      - Note: this brings over their plugins, themes, workspace, hotkeys
 
    c. **MCP configuration** (`.migration/.mcp.json`)
-      - If exists, copy to `./.mcp.json`
-      - If `.mcp.json` already exists in opesidian, show both and ask user which
-        to keep or how to merge
+      - If exists, explain what MCP config contains
+      - Note that opencode uses `opencode.json` for MCP config instead of
+        `.mcp.json` — offer to help translate the config
+      - If they also use Claude Code, copy `.mcp.json` as-is for backward
+        compat
 
    d. **Claude configuration** (`.migration/claude/`)
+
+      Walk through each sub-item with the user:
+
       - **settings.local.json**: Copy to `.claude/settings.local.json`
-        (user's permissions and local-only settings)
-      - **vault-config.json**: Copy to `.claude/vault-config.json` AND
-        `.opencode/vault-config.json` — use the data to pre-populate setup
-        questions in later steps
-      - **mcp-servers/**: Check if opesidian already has the same MCP servers.
-        Copy any user-added MCP servers. For stock ones (gemini-vision), keep
-        opesidian's version.
-      - **Custom commands**: Identify commands not in the stock claudesidian list.
-        Stock list: README.md, add-frontmatter.md, create-command.md,
-        daily-review.md, de-ai-ify.md, download-attachment.md,
-        inbox-processor.md, init-bootstrap.md, install-claudesidian-command.md,
-        pragmatic-review.md, pull-request.md, release.md,
-        research-assistant.md, thinking-partner.md, upgrade.md,
-        weekly-synthesis.md
+        (user's local permissions — only relevant if they also use Claude
+        Code)
+
+      - **vault-config.json**: Read the user's preferences (name, projects,
+        areas, resources, organization method). Copy to
+        `.opencode/vault-config.json` to pre-populate later setup questions.
+        Show the user what was found: "Your previous config shows you use
+        PARA with these projects: [list]. I'll use this as a starting point."
+
+      - **MCP servers**: Check if the user has custom MCP servers beyond
+        stock (gemini-vision). For custom ones, copy to
+        `.opencode/mcp-servers/` and note they may need config adaptation.
+        For stock ones, keep opesidian's version.
+
+      - **Custom commands**: Identify commands NOT in the stock claudesidian
+        list. Stock commands: README.md, add-frontmatter.md,
+        create-command.md, daily-review.md, de-ai-ify.md,
+        download-attachment.md, inbox-processor.md, init-bootstrap.md,
+        install-claudesidian-command.md, pragmatic-review.md,
+        pull-request.md, release.md, research-assistant.md,
+        thinking-partner.md, upgrade.md, weekly-synthesis.md
 
         For each custom command:
-        - Read the file content
-        - Determine if it has Claude Code-specific dependencies (allowed-tools,
-          claude-specific features)
-        - If it can be cleanly adapted:
-          - Convert frontmatter from Claude format to opencode format
-            (keep only `description:`)
+        - Read the file and show the user a summary of what it does
+        - Determine if it can be cleanly adapted for opencode:
+          - Convert frontmatter from Claude format (`name:`,
+            `allowed-tools:`, `argument-hint:`) to opencode format
+            (just `description:`)
           - Perform text substitutions where appropriate
-          - Write to `.opencode/commands/[name].md`
-          - Also copy to `.claude/commands/[name].md` for backward compat
-          - Show user the adaptation
-        - If it has Claude-specific dependencies that can't be cleanly adapted:
-          - Copy to `.claude/commands/[name].md` only (Claude Code compat)
-          - Tell user: "This command uses Claude Code-specific features. It's
-            available when using Claude Code but may need manual adaptation
-            for opencode."
+        - If cleanly adaptable: show the user the adapted version, ask
+          for confirmation, write to `.opencode/commands/[name].md`
+        - If there are ambiguities or Claude-specific dependencies:
+          consult the user on how to handle it. Options:
+          - Adapt with best effort and let user review
+          - Keep in `.migration/claude/commands/` for manual adaptation
+          - Skip entirely
+        - Always tell the user what was done with each command
 
-      - **Custom skills**: Identify skills not in the stock list.
-        Stock list: git-worktrees, json-canvas, obsidian-bases,
-        obsidian-markdown, skill-creator, systematic-debugging, LICENSE-kepano
+      - **Custom skills**: Identify skills NOT in the stock list.
+        Stock skills: git-worktrees, json-canvas, obsidian-bases,
+        obsidian-markdown, skill-creator, systematic-debugging,
+        LICENSE-kepano
 
         For each custom skill:
-        - Read SKILL.md
-        - Update `compatibility:` frontmatter field to include "opencode"
+        - Read SKILL.md and show the user what it does
+        - Update `compatibility:` frontmatter to include "opencode"
         - Copy to `.agents/skills/[name]/`
-        - Show user what was migrated
+        - If there are concerns about compatibility, keep a copy in
+          `.migration/` and tell the user
 
    e. **CLAUDE.md → AGENTS.md**
       - If `.migration/CLAUDE.md` exists:
-        - Read the content
-        - Show user a summary of what their CLAUDE.md contains
+        - Read the content and show the user a summary of their
+          personalized configuration
+        - Explain: "Your CLAUDE.md contains your personalized system
+          prompt. I'll adapt it for opencode as AGENTS.md."
         - Create AGENTS.md by adapting the content:
           - "Claude Code" → "opencode"
           - "Claudesidian" → "Opesidian" / "claudesidian" → "opesidian"
@@ -126,25 +177,31 @@ Then generate a customized AGENTS.md file tailored to their needs.
           - ".claude/commands/" → ".opencode/commands/"
           - ".claude/skills/" → ".agents/skills/"
           - Do NOT change bare "Claude" (the AI model name)
-        - Show user the result, ask for confirmation
-        - Write AGENTS.md
-        - Also copy original CLAUDE.md to vault root for Claude Code backward
-          compatibility
+        - Show the user the full adapted result and ask for confirmation
+          before writing
+        - Write AGENTS.md only after user approves
+        - Also copy original CLAUDE.md to vault root for Claude Code
+          backward compatibility
 
-   f. **Other directories** (`.migration/other/`)
-      - List each directory with contents summary
-      - Ask user for each: "Move [name] to vault root? (yes/skip)"
+   f. **Other directories and files** (`.migration/other/`)
+      - List each directory with a summary of contents
+      - For each, ask the user: "Found [name] — would you like to place
+        this at the vault root, or keep it in .migration/ for now?"
       - Move as directed
 
    g. **Other dotfiles** (`.migration/.trash`, `.migration/.smart-connections`,
       etc.)
-      - Copy to vault root
+      - List what was found and explain what each is
+      - Copy to vault root with user confirmation
 
-   h. **Clean up**
-      - Remove `.migration/` directory
-      - Tell user migration is complete
-      - Show full summary of everything that was migrated
-      - Note any items that need manual attention
+   h. **Migration summary**
+      - Show a complete summary of everything that was migrated
+      - List anything still remaining in `.migration/` that wasn't placed
+      - If `.migration/` still has content, tell the user: "Some items are
+        still in .migration/ for your review. You can move them manually
+        or ask me to help place them later."
+      - If `.migration/` is empty, offer to remove it
+      - Remind the user: "Your original claudesidian vault was not modified."
 
    After migration completes, CONTINUE with the remaining steps. The setup
    wizard should now pre-populate answers from the migrated vault-config.json.

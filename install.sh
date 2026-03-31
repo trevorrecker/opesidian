@@ -66,138 +66,107 @@ validate_claudesidian_dir() {
 run_migration_staging() {
     local source_path="$1"
     local content_count=0
-    local command_count=0
-    local skill_count=0
+    local dotfile_count=0
     local other_count=0
-    local has_obsidian="no"
-    local has_claude="no"
-    local has_mcp="no"
-    local has_claude_md="no"
+    local file_count=0
 
     echo ""
-    echo "Staging claudesidian content for migration..."
+    echo "Staging claudesidian vault for migration..."
     echo "Source: $source_path"
     echo ""
+    echo "Your original claudesidian directory will NOT be modified."
+    echo "Everything is copied into .migration/ for the setup wizard to process."
+    echo ""
 
-    mkdir -p .migration
+    mkdir -p .migration/content .migration/dotfiles .migration/other .migration/files
 
-    # 1. Content directories — discover dynamically (NN_* pattern)
+    # ── Stage ALL content directories (NN_* pattern) ──
     for dir in "$source_path"/[0-9][0-9]_*/; do
         [ -d "$dir" ] || continue
         local name
         name=$(basename "$dir")
         echo "  Staging content: $name"
-        mkdir -p ".migration/content/$name"
-        cp -r "$dir"/* ".migration/content/$name/" 2>/dev/null
+        cp -r "$dir" ".migration/content/$name"
         content_count=$((content_count + 1))
     done
 
-    # 2. Obsidian configuration
-    if [ -d "$source_path/.obsidian" ]; then
-        echo "  Staging .obsidian/"
-        cp -r "$source_path/.obsidian" .migration/obsidian
-        has_obsidian="yes"
-    fi
-
-    # 3. Claude configuration (entire .claude/ directory)
-    if [ -d "$source_path/.claude" ]; then
-        echo "  Staging .claude/"
-        cp -r "$source_path/.claude" .migration/claude
-        has_claude="yes"
-
-        # Count custom commands
-        if [ -d "$source_path/.claude/commands" ]; then
-            local stock_commands="README.md add-frontmatter.md create-command.md daily-review.md de-ai-ify.md download-attachment.md inbox-processor.md init-bootstrap.md install-claudesidian-command.md pragmatic-review.md pull-request.md release.md research-assistant.md thinking-partner.md upgrade.md weekly-synthesis.md"
-            for cmd in "$source_path"/.claude/commands/*.md; do
-                [ -f "$cmd" ] || continue
-                local cmd_name
-                cmd_name=$(basename "$cmd")
-                if ! echo "$stock_commands" | grep -qw "$cmd_name"; then
-                    command_count=$((command_count + 1))
-                fi
-            done
-        fi
-
-        # Count custom skills
-        if [ -d "$source_path/.claude/skills" ]; then
-            local stock_skills="git-worktrees json-canvas obsidian-bases obsidian-markdown skill-creator systematic-debugging LICENSE-kepano"
-            for skill_dir in "$source_path"/.claude/skills/*/; do
-                [ -d "$skill_dir" ] || continue
-                local skill_name
-                skill_name=$(basename "$skill_dir")
-                if ! echo "$stock_skills" | grep -qw "$skill_name"; then
-                    skill_count=$((skill_count + 1))
-                fi
-            done
-        fi
-    fi
-
-    # 4. MCP configuration
-    if [ -f "$source_path/.mcp.json" ]; then
-        echo "  Staging .mcp.json"
-        cp "$source_path/.mcp.json" .migration/
-        has_mcp="yes"
-    fi
-
-    # 5. CLAUDE.md (user's personalized prompt)
-    if [ -f "$source_path/CLAUDE.md" ]; then
-        echo "  Staging CLAUDE.md"
-        cp "$source_path/CLAUDE.md" .migration/
-        has_claude_md="yes"
-    fi
-
-    # 6. Other Obsidian-related dotfiles
-    for f in .trash .smart-connections .obsidian.vimrc; do
-        if [ -e "$source_path/$f" ]; then
-            echo "  Staging $f"
-            cp -r "$source_path/$f" ".migration/$f"
-        fi
+    # ── Stage ALL dot-directories and dot-files ──
+    # Skip: .git (their repo history), node_modules-like dirs
+    for item in "$source_path"/.*; do
+        [ -e "$item" ] || continue
+        local name
+        name=$(basename "$item")
+        case "$name" in
+            .|..|.git|.DS_Store) continue ;;
+        esac
+        echo "  Staging dotfile: $name"
+        cp -r "$item" ".migration/dotfiles/$name"
+        dotfile_count=$((dotfile_count + 1))
     done
 
-    # 7. Other non-core top-level directories
+    # ── Stage ALL other top-level directories ──
+    # Skip: NN_* dirs (already staged above), node_modules
     for dir in "$source_path"/*/; do
         [ -d "$dir" ] || continue
         local name
         name=$(basename "$dir")
         case "$name" in
-            [0-9][0-9]_*|node_modules|ref|.backup) continue ;;
+            [0-9][0-9]_*|node_modules) continue ;;
         esac
-        echo "  Staging other directory: $name"
-        mkdir -p ".migration/other/$name"
-        cp -r "$dir"/* ".migration/other/$name/" 2>/dev/null
+        echo "  Staging directory: $name"
+        cp -r "$dir" ".migration/other/$name"
         other_count=$((other_count + 1))
     done
 
-    # 8. Create migration manifest
+    # ── Stage ALL top-level files ──
+    # Skip: package-lock.json, pnpm-lock.yaml (deps are reinstalled)
+    for item in "$source_path"/*; do
+        [ -f "$item" ] || continue
+        local name
+        name=$(basename "$item")
+        case "$name" in
+            package-lock.json|pnpm-lock.yaml) continue ;;
+        esac
+        echo "  Staging file: $name"
+        cp "$item" ".migration/files/$name"
+        file_count=$((file_count + 1))
+    done
+
+    # ── Create migration manifest ──
     cat > .migration/MANIFEST.md <<'MEOF'
 # Claudesidian Migration Staging
 
-Files copied from your claudesidian installation for migration.
-The `/init-bootstrap` wizard will process these and adapt them for opesidian/opencode.
+Everything from your claudesidian vault has been copied here for migration.
+The `/init-bootstrap` wizard will walk you through placing and adapting each
+item for opesidian/opencode.
 
-## Contents
+Your original claudesidian directory was not modified.
 
-- `content/` — Your vault content (PARA folders and any custom content directories)
-- `obsidian/` — Your .obsidian configuration (settings, plugins, themes)
-- `claude/` — Your .claude directory (commands, settings, MCP servers, vault-config)
-- `other/` — Other top-level directories from your vault
-- `CLAUDE.md` — Your personalized system prompt
-- `.mcp.json` — Your MCP server configuration
+## Directory structure
+
+- `content/` — Your vault content directories (00_Inbox, 01_Projects, etc.)
+- `dotfiles/` — All dot-directories and dot-files (.obsidian, .claude, .mcp.json, etc.)
+- `other/` — Other top-level directories (OLD_VAULT, custom folders, etc.)
+- `files/` — Top-level files (CLAUDE.md, package.json, etc.)
 
 ## What happens next
 
 Run `opencode` then `/init-bootstrap`. The wizard will:
 
-1. Move your content into the vault's PARA folders
-2. Copy your .obsidian settings and plugins
-3. Detect and adapt custom commands for opencode
-4. Detect and migrate custom skills to .agents/skills/
-5. Help create your AGENTS.md from your CLAUDE.md
-6. Copy your MCP and other configurations
-7. Pre-populate setup questions from your existing vault-config.json
+1. Walk through your content directories and place them in the vault
+2. Copy your .obsidian settings, plugins, and themes
+3. Migrate your .claude configuration (commands, skills, settings)
+4. Adapt custom commands for opencode where possible
+5. Migrate custom skills to .agents/skills/
+6. Help create your AGENTS.md from your CLAUDE.md
+7. Handle MCP server configuration
+8. Pre-populate setup questions from your existing vault-config.json
+9. Ask about any remaining items
+
+Items that can't be cleanly migrated stay in .migration/ for your review.
 MEOF
 
-    # Print summary
+    # ── Print summary ──
     echo ""
     echo "================================================"
     echo "  Claudesidian vault staged for migration"
@@ -207,13 +176,11 @@ MEOF
     echo "  Staged to: .migration/"
     echo ""
     echo "  Content directories:  $content_count"
-    echo "  .obsidian config:     $has_obsidian"
-    echo "  .claude config:       $has_claude"
-    echo "  Custom commands:      $command_count found"
-    echo "  Custom skills:        $skill_count found"
-    echo "  CLAUDE.md:            $has_claude_md"
-    echo "  .mcp.json:            $has_mcp"
+    echo "  Dot-files/dirs:       $dotfile_count"
     echo "  Other directories:    $other_count"
+    echo "  Top-level files:      $file_count"
+    echo ""
+    echo "  Your claudesidian directory was not modified."
     echo ""
 }
 
@@ -327,7 +294,13 @@ if [ -n "$CLAUDESIDIAN_PATH" ]; then
     fi
 else
     # No path — ask about migration
-    echo "Are you migrating from an existing claudesidian vault?"
+    echo "Do you have an existing claudesidian vault you'd like to migrate?"
+    echo ""
+    echo "  This will copy ALL of your notes, Obsidian plugins, commands,"
+    echo "  skills, and configuration into a staging area. The /init-bootstrap"
+    echo "  wizard will then walk you through placing everything in opesidian."
+    echo ""
+    echo "  Your original claudesidian directory will NOT be modified."
     echo ""
     echo "  1) Yes, migrate from claudesidian"
     echo "  2) No, fresh install"
